@@ -2,7 +2,7 @@ from Sample_code import withdraw
 
 def test_negative_withdrawal_does_not_increase_balance():
     result=withdraw(100,-20)
-    assert result<=100
+    assert result==100
 
 def test_valid_withdrawal_reduces_balances():
     result=withdraw(100,30)

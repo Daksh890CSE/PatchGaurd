@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from schemas import CodeAnalysisRequest
+from ai_analyzer import analyze_code
 
 app=FastAPI(title="PatchGuard API")
 
@@ -9,7 +10,23 @@ def health_check():
 
 @app.post("/analyze")
 def analyze(request: CodeAnalysisRequest):
+    try:
+        findings= analyze_code(request.code)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Code analysis failed. Check the AI service and response format."
+        ) from exc
+    
     return{
-        "message" : "code recieved successfully",
-        "code_length" : len(request.code)
+        "findings":[
+            {
+                "bug_type":finding.bug_type,
+                "function":finding.function,
+                "description":finding.description,
+                "severity":finding.severity,
+                "verification_status":finding.verification_status,
+            }
+            for finding in findings
+        ]
     }
